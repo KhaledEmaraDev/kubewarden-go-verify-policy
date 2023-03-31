@@ -49,10 +49,7 @@ func validate(payload []byte) ([]byte, error) {
 	})
 
 	host := kubewarden_capabilities.NewHost()
-	verificatopnResponse, err := host.VerifyCert(kubewarden_capabilities.Certificate{
-		Encoding: kubewarden_capabilities.Pem,
-		Data:     []rune(settings.PubKeys[0]),
-	}, nil, "")
+	verificatopnResponse, err := host.VerifyKeylessGithubActionsV2(settings.Image, settings.PubKeys[0], settings.PubKeys[1], make(map[string]string))
 
 	if err != nil {
 		logger.InfoWithFields("rejecting pod object", func(e onelog.Entry) {
@@ -67,7 +64,7 @@ func validate(payload []byte) ([]byte, error) {
 			kubewarden.NoCode)
 	}
 
-	if !verificatopnResponse {
+	if !verificatopnResponse.IsTrusted {
 		logger.InfoWithFields("rejecting pod object", func(e onelog.Entry) {
 			e.String("name", pod.Metadata.Name)
 			e.String("image", settings.Image)
